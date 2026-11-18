@@ -16,6 +16,7 @@ import threading
 import time
 from datetime import date
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -28,13 +29,25 @@ from traffic.periods import DEFAULT_PRESET, PRESETS, grain_for, preset_range, to
 
 app = FastAPI(title="Calgary Traffic Incidents API", docs_url="/api/docs", openapi_url="/api/openapi.json")
 
-@app.middleware("http")
-async def path_debug(request, call_next):
-    response = await call_next(request)
-    if response.status_code == 404:
-        s = request.scope
-        response.headers["X-Path-Debug"] = f"path={s.get('path')!r} root={s.get('root_path')!r} raw={s.get('raw_path')!r}"
-    return response
+class RestoreVercelPath:
+    """Vercel's rewrite (/api/:path* -> /api/index?__path=:path*) hands the function the path
+    `/api/index`; put the original `/api/<path>` back so FastAPI routing works."""
+
+    def __init__(self, asgi_app):
+        self.app = asgi_app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope["path"] in ("/api/index", "/api/index.py"):
+            pairs = parse_qsl(scope.get("query_string", b"").decode(), keep_blank_values=True)
+            original = next((v for k, v in pairs if k == "__path"), None)
+            if original is not None:
+                path = "/api/" + original.lstrip("/")
+                scope = {**scope, "path": path, "raw_path": path.encode(),
+                         "query_string": urlencode([(k, v) for k, v in pairs if k != "__path"]).encode()}
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(RestoreVercelPath)
 
 
 CACHE_TTL_SECONDS = 300
