@@ -1,0 +1,9 @@
+# Local-only files (not needed by the web app)
+streamlit_app.py
+etl.py
+calgary_traffic.db
+requirements-streamlit.txt
+requirements-dev.txt
+.claude/
+__pycache__/
+.venv/

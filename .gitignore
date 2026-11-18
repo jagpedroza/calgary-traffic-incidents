@@ -1,0 +1,4 @@
+calgary_traffic.db
+__pycache__/
+.venv/
+.vercel/

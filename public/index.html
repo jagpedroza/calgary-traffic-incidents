@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calgary Traffic Incidents</title>
+  <meta name="description" content="Live dashboard of traffic incidents in Calgary, Alberta, using open data from The City of Calgary.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚦</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@3.0.1/plotly.min.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <div class="title-row">
+        <h1>🚦 Calgary Traffic Incidents</h1>
+        <p class="sub" id="period-label">Loading…</p>
+      </div>
+      <nav class="presets" id="presets" aria-label="Period"></nav>
+      <div class="custom-range" id="custom-range" hidden>
+        <label>From <input type="date" id="start"></label>
+        <label>To <input type="date" id="end"></label>
+        <button class="btn" id="apply-range">Apply</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="filters" aria-label="Filters">
+      <div class="chips" id="quadrants" role="group" aria-label="Quadrant"></div>
+      <details class="dropdown" id="cat-dropdown">
+        <summary>Incident type: <span id="cat-summary">All</span></summary>
+        <div class="dropdown-body">
+          <div class="dropdown-actions">
+            <button class="link" data-cats="all">All</button>
+            <button class="link" data-cats="none">None</button>
+          </div>
+          <div id="categories"></div>
+        </div>
+      </details>
+      <input type="search" id="search" placeholder="Search location (e.g. Deerfoot, Macleod)" aria-label="Search location">
+      <label class="toggle"><input type="checkbox" id="blocking"> Blocking lanes only</label>
+    </section>
+
+    <section class="kpis" id="kpis" aria-live="polite"></section>
+    <div class="notice" id="notice" hidden></div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Map</h2>
+        <div class="seg" id="map-mode">
+          <button data-mode="points">Points</button>
+          <button data-mode="heat">Heatmap</button>
+        </div>
+      </div>
+      <div id="map" class="chart map"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Over time</h2><span class="muted" id="grain-label"></span></div>
+      <div id="timeseries" class="chart"></div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <div class="card-head"><h2>Hour × weekday</h2><span class="muted">Calgary local time</span></div>
+        <div id="heatmap" class="chart small"></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>By type</h2></div>
+        <div id="categories-chart" class="chart small"></div>
+      </section>
+    </div>
+
+    <div class="grid2">
+      <section class="card">
+        <div class="card-head"><h2>Top locations</h2></div>
+        <div id="top" class="chart tall"></div>
+      </section>
+      <section class="card">
+        <div class="card-head">
+          <h2>Latest incidents</h2>
+          <button class="btn ghost" id="csv" title="Latest 500 incidents for the current filters">Download CSV</button>
+        </div>
+        <div class="table-wrap"><table id="recent"></table></div>
+      </section>
+    </div>
+
+    <section class="card about">
+      <h2>About the data</h2>
+      <p>Source: <a href="https://data.calgary.ca/Transportation-Transit/Traffic-Incidents/35ra-9556" target="_blank" rel="noopener">Traffic Incidents — Open Calgary</a>, published by The City of Calgary. Updated continuously from the Advanced Traveler Information System (ATIS), December 2016 to present.</p>
+      <p>According to the City, this is an <strong>unofficial archive</strong> of incidents affecting traffic flow (signal issues, hazardous road conditions, stalled vehicles and unverified collisions) based on traffic-camera imagery. <strong>It is not an official collision record</strong> and may have gaps. The incident type shown here is derived automatically from the description text.</p>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Contains information licensed under the <a href="https://data.calgary.ca/stories/s/Open-Calgary-Terms-of-Use/u45n-7awa" target="_blank" rel="noopener">Open Government Licence – City of Calgary</a>.</p>
+    <p>Independent app, not endorsed by The City of Calgary. Information is provided “as is”, without warranty.</p>
+  </footer>
+</body>
+</html>

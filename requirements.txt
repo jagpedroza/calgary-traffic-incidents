@@ -1,0 +1,4 @@
+# Web app / Vercel serverless function (keep this small)
+fastapi>=0.115
+requests>=2.31
+tzdata>=2024.1
