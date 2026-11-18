@@ -28,6 +28,15 @@ from traffic.periods import DEFAULT_PRESET, PRESETS, grain_for, preset_range, to
 
 app = FastAPI(title="Calgary Traffic Incidents API", docs_url="/api/docs", openapi_url="/api/openapi.json")
 
+@app.middleware("http")
+async def path_debug(request, call_next):
+    response = await call_next(request)
+    if response.status_code == 404:
+        s = request.scope
+        response.headers["X-Path-Debug"] = f"path={s.get('path')!r} root={s.get('root_path')!r} raw={s.get('raw_path')!r}"
+    return response
+
+
 CACHE_TTL_SECONDS = 300
 _cache: dict[tuple[date, date], tuple[float, object]] = {}
 _lock = threading.Lock()
